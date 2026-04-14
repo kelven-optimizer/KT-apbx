@@ -463,6 +463,122 @@
       .stat-cell { border-right: none; border-bottom: 1px solid var(--border-light); }
       .stat-cell:last-child { border-bottom: none; }
     }
+
+    /* ===== DESTAQUE DO KELVEN ===== */
+    .creator-highlight {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1));
+      border: 1px solid var(--border-glow);
+      border-radius: 60px;
+      padding: 16px 32px;
+      margin: 32px 0 48px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 40px rgba(139, 92, 246, 0.2);
+      animation: glowPulse 3s infinite alternate;
+      transition: transform 0.3s ease;
+    }
+    .creator-highlight:hover {
+      transform: scale(1.01);
+      border-color: var(--primary-light);
+    }
+    @keyframes glowPulse {
+      0% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
+      100% { box-shadow: 0 0 50px rgba(236, 72, 153, 0.3); }
+    }
+    .creator-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 3px solid var(--primary-light);
+      box-shadow: 0 0 30px var(--primary);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      animation: avatarFloat 4s ease-in-out infinite;
+      object-fit: cover;
+    }
+    @keyframes avatarFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .creator-avatar:hover {
+      transform: scale(1.05) rotate(2deg);
+      box-shadow: 0 0 50px var(--accent-pink);
+    }
+    .creator-info {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .creator-label {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent-green);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .creator-label i {
+      color: var(--accent-green);
+      animation: pulse 1.5s infinite;
+    }
+    .creator-name {
+      font-family: var(--font-display);
+      font-size: 32px;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #fff, var(--primary-light));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .creator-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid var(--primary-light);
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-light);
+      margin-top: 4px;
+    }
+    .creator-badge i {
+      color: var(--accent-green);
+    }
+    .creator-stats {
+      margin-left: auto;
+      display: flex;
+      gap: 24px;
+    }
+    .creator-stat {
+      text-align: center;
+    }
+    .creator-stat-value {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--text-primary);
+    }
+    .creator-stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    @media (max-width: 700px) {
+      .creator-highlight {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px;
+      }
+      .creator-stats {
+        margin-left: 0;
+        justify-content: center;
+      }
+    }
   </style>
 </head>
 <body>
@@ -652,6 +768,27 @@
           <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-muted); margin-top:12px;" id="pb-count">Mostrando 13 playbooks</div>
         </div>
       </div>
+      
+      <!-- DESTAQUE DO CRIADOR COM FOTO DO GITHUB -->
+      <div class="creator-highlight" id="creator-highlight" data-reveal>
+        <img class="creator-avatar" id="creator-avatar" src="https://avatars.githubusercontent.com/u/113907052?v=4" alt="kelvenapk">
+        <div class="creator-info">
+          <span class="creator-label"><i class="fas fa-code-branch"></i> MODIFICADO POR</span>
+          <span class="creator-name" id="creator-name">kelvenapk</span>
+          <span class="creator-badge"><i class="fas fa-check-circle"></i> Todos os 13 playbooks adaptados para Windows 10</span>
+        </div>
+        <div class="creator-stats">
+          <div class="creator-stat">
+            <div class="creator-stat-value">13</div>
+            <div class="creator-stat-label">Playbooks</div>
+          </div>
+          <div class="creator-stat">
+            <div class="creator-stat-value">Win10</div>
+            <div class="creator-stat-label">Suporte</div>
+          </div>
+        </div>
+      </div>
+
       <div class="pb-grid" id="pb-grid"></div>
     </div>
   </section>
@@ -767,6 +904,22 @@
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
+
+    // Fetch GitHub profile for kelvenapk
+    async function fetchGitHubProfile() {
+      try {
+        const response = await fetch('https://api.github.com/users/kelvenapk');
+        const data = await response.json();
+        const avatar = document.getElementById('creator-avatar');
+        const nameSpan = document.getElementById('creator-name');
+        if (data.avatar_url) avatar.src = data.avatar_url;
+        if (data.name) nameSpan.textContent = data.name;
+        else if (data.login) nameSpan.textContent = data.login;
+      } catch (e) {
+        console.log('GitHub API fallback, usando dados estáticos');
+      }
+    }
+    fetchGitHubProfile();
 
     const PLAYBOOKS = [
       { name: 'AtlasOS', file: 'AtlasPlaybook_v0.5.0-hotfix.apbx', ver: 'v0.5.0-hotfix', cat: 'performance', tags: ['performance','gaming'], desc: 'O playbook mais popular da comunidade AME. Remove bloatware, desativa telemetria e otimiza o sistema para gaming e performance geral.' },
